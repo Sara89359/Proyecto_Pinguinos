@@ -18,6 +18,26 @@ st.set_page_config(page_title="Grupazo 4", #titulo de la pagina
                    layout="wide", #para que ocupe el ancho de la ventana"
                    page_icon="🐧")
 
+import streamlit as st
+
+# ⬇️ Para cambiar la opacidad de los cuadros:
+st.markdown("""
+<style>
+/* Fondo opaco para st.error, st.warning, st.info */
+.stAlert {
+    background-color: rgba(255, 255, 255, 0.50) !important;
+    border-radius: 10px !important;
+    padding: 15px !important;
+}
+
+/* Fondo opaco para contenedores con border=True */
+div[data-testid="stContainer"] {
+    background-color: rgba(255, 255, 255, 0.50) !important;
+    border-radius: 10px !important;
+    padding: 15px !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 import base64
 from PIL import Image
@@ -211,28 +231,63 @@ st.markdown("<h1 style='text-align: center;'>🐧⛔ Limitaciones y Sesgos</h1>"
 st.divider()
 
 #Primera fila: El problema principal
-st.error("### 🛑 Limitación Crítica: Comportamiento\nNo existen datos suficientes para concluir diferencias en migración, reproducción o anidación.")
+st.markdown("""
+<div style="
+    background-color: #fdecea;        /* rojo muy claro */
+    border-left: 4px solid #d93025;   /* rojo Google-style */
+    padding: 12px 16px;
+    border-radius: 6px;
+    ">
+  <span style='color:#b71c1c; font-weight:bold; font-size:26px;'>
+    🛑 Limitación Crítica: Comportamiento
+  </span><br>
+  <span style='color:#5a0000; font-size:22px;'>
+    No existen datos suficientes para concluir diferencias en migración, reproducción o anidación.
+  </span>
+</div>
+""", unsafe_allow_html=True)
 
 #Segunda fila: Sesgos técnicos
 col1, col2 = st.columns(2)
 
+col1, col2 = st.columns(2)
+
 with col1:
     with st.container(border=True):
-        st.markdown("#### ⚖️ Sesgos de Identificación")
-        st.write("""
-        
-IDs Reutilizados: Imposible el seguimiento multianual.
-Errores Sistemáticos: Identificación errónea persistente en las muestras.""")
+        st.markdown("""
+        <h4 style='font-size:26px; margin-bottom:6px;'>⚖️ Sesgos de Identificación</h4>
+        <p style='font-size:22px; line-height:1.4;'>
+        IDs Reutilizados: Imposible el seguimiento multianual.<br>
+        Errores Sistemáticos: Identificación errónea persistente en las muestras.
+        </p>
+        """, unsafe_allow_html=True)
 
 with col2:
     with st.container(border=True):
-        st.markdown("#### 🧬 Barrera Técnica")
-        st.write("""
-        
-Conocimiento Específico: Datos como las columnas Delta requieren perfiles en biología marina para evitar especulaciones.""")
+        st.markdown("""
+        <h4 style='font-size:26px; margin-bottom:6px;'>🧬 Barrera Técnica</h4>
+        <p style='font-size:22px; line-height:1.4;'>
+        Conocimiento Específico: Datos como las columnas Delta requieren perfiles en biología marina para evitar especulaciones.
+        </p>
+        """, unsafe_allow_html=True)
 
 #Tercera fila: Propuesta de mejora
-st.info("#### 📋 Propuesta para el Cliente\nImplementar una nomenclatura alfanumérica optimizada para garantizar trazabilidad y eliminar sesgos de información.")
+st.markdown("""
+<div style="
+    background-color: #e8f4fd;
+    border-left: 4px solid #1f77b4;
+    padding: 12px 16px;
+    border-radius: 6px;
+    ">
+ <span style='color:#0A4D8C; font-weight:bold; font-size:26px;'>
+    Propuesta para el Cliente
+  </span><br>
+  <span style='color:#333333; font-size:22px; line-height:1.4;'>
+    Implementar una nomenclatura alfanumérica optimizada para garantizar trazabilidad y eliminar sesgos de información.
+  </span>
+</div>
+""", unsafe_allow_html=True)
+
 
 import streamlit as st
  
@@ -240,14 +295,14 @@ import streamlit as st
 st.markdown("""
 <style>
     .section-label {
-        font-size: 0.72rem;
+        font-size: 1.35rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 1.2px;
         margin-bottom: 6px;
     }
     .section-content {
-        font-size: 0.92rem;
+        font-size: 1.35rem;
         line-height: 1.55;
         color: #374151;
         margin: 0;
@@ -263,6 +318,9 @@ st.markdown("""
     .pill-recomendacion  { background: #ecfdf5; border-left: 4px solid #10b981; border-radius: 0 8px 8px 0; padding: 12px 14px; }
 
     div[data-testid="column"] { padding: 4px 8px; }
+            
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -349,3 +407,25 @@ with st.expander("📋 Hallazgos", expanded=False):
                     f'</div>',
                     unsafe_allow_html=True,
                 )
+
+st.markdown("""
+<style>
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: rgba(255,255,255,0.85);
+    color: #333;
+    text-align: center;
+    padding: 8px 0;
+    font-size: 0.9rem;
+    border-top: 1px solid #ccc;
+}
+</style>
+
+<div class="footer">
+    Dashboard renderizado a -20°C. Compilado entre ventiscas y mucho café + té para mantener los insights calientes.
+            Informe realizado para Organizacion de Investigacion Biologica Polar por Iceberg Intelligence.
+</div>
+""", unsafe_allow_html=True)
