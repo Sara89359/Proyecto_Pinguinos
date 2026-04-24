@@ -42,6 +42,36 @@ def apply_filters(df: pd.DataFrame) -> pd.DataFrame:
 
     return datos_filtrados
 
+# Filtro por especie
+def apply_filters_especies(df: pd.DataFrame) -> pd.DataFrame:
+    filtro_especie = st.sidebar.multiselect(
+        "Filtrar por especie:",
+        df['Species'].unique()
+    )
+
+    # Si no hay filtro, devolvemos el df original
+    if not filtro_especie:
+        st.info("Selecciona una especie para ver el resumen.")
+        return df
+
+    # Filtrar el dataframe
+    datos_filtrados = df[df['Species'].isin(filtro_especie)]
+
+    # Crear resumen por isla
+    resumen = datos_filtrados.groupby("Island")[[
+        "Body Mass (g)",
+        "Culmen Length (mm)",
+        "Culmen Depth (mm)",
+        "Flipper Length (mm)"
+    ]].mean().round(2)
+
+    # Añadir número de pingüinos por isla
+    resumen["Nº Pingüinos"] = datos_filtrados.groupby("Island").size()
+
+    # Mostrar tabla
+    st.dataframe(resumen)
+
+    return datos_filtrados
 
 def grafico_masa_por_especie(df):
     fig = px.bar(

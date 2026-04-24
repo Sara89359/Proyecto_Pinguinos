@@ -6,7 +6,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import folium
 from streamlit_folium import st_folium
-from src.penguins_pipeline import carga_datos, apply_filters, grafico_masa_por_especie, distribucion_especie, graficos_lmplot, heatmap_correlaciones, compute_kpis
+from src.penguins_pipeline import carga_datos, apply_filters, grafico_masa_por_especie, distribucion_especie, graficos_lmplot, heatmap_correlaciones, compute_kpis, apply_filters_especies
 
 
 from PIL import Image
@@ -14,71 +14,220 @@ import streamlit as st
 
 #Configuracion de la pagina
 
-st.set_page_config(page_title="Grupazo 4", #titulo de la pagina
+st.set_page_config(page_title="Iceberg Intelligence", #titulo de la pagina
                    layout="wide", #para que ocupe el ancho de la ventana"
                    page_icon="🐧")
 
+import streamlit as st
+import base64
+import streamlit.components.v1 as components
 
-# Cargar imagen local
-cabecera = Image.open("imagen_pinguinos.png")
+# --- Convertir MP3 a base64 ---
+def load_audio_base64(path):
+    with open(path, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
 
-# Mostrarla como banner
-st.image(cabecera, width='stretch')
+audio_b64 = load_audio_base64("assets/musica_fondo.mp3")
 
+# --- HTML + JS con estilo Iceberg Intelligence ---
+html_code = f"""
+<div style="text-align:center; margin-top:20px;">
+
+    <button class="ice-btn" onclick="playMusic()">🐧▶️ Reproducir</button>
+    <button class="ice-btn" onclick="pauseMusic()">❄️⏸️ Pausar</button>
+
+    <br><br>
+
+    <input class="ice-slider" type="range" min="0" max="1" step="0.05" value="0.15"
+           onchange="setVolume(this.value)" style="width:200px;">
+</div>
+
+<audio id="bg-music" loop>
+    <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
+</audio>
+
+<script>
+    var audio = document.getElementById("bg-music");
+    audio.volume = 0.15;
+
+    function playMusic() {{
+        audio.play();
+    }}
+
+    function pauseMusic() {{
+        audio.pause();
+    }}
+
+    function setVolume(val) {{
+        audio.volume = val;
+    }}
+</script>
+"""
+
+components.html(html_code, height=220)
+
+import streamlit as st
+
+# ⬇️ Para cambiar la opacidad de los cuadros:
 st.markdown("""
+<style>
+/* Fondo opaco para st.error, st.warning, st.info */
+.stAlert {
+    background-color: rgba(255, 255, 255, 0.50) !important;
+    border-radius: 10px !important;
+    padding: 15px !important;
+}
+
+/* Fondo opaco para contenedores con border=True */
+div[data-testid="stContainer"] {
+    background-color: rgba(255, 255, 255, 0.50) !important;
+    border-radius: 10px !important;
+    padding: 15px !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+import base64
+from PIL import Image
+
+def imagen_a_base64(imagen_pinguinos):
+    with open(imagen_pinguinos, "rb") as f:
+        return base64.b64encode(f.read()).decode()
+
+img_b64 = imagen_a_base64("Imagenes/imagen_pinguinos.png")
+
+st.markdown(f"""
     <style>
-    /* Elimina el espacio superior (padding) del contenedor principal */
-    .block-container {
-        padding-top: 0rem;
+    /* Elimina padding del contenedor /
+    .block-container {{
+        padding-top: 0rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
         padding-bottom: 0rem;
-    }
+    }}
+    / Oculta header gris de Streamlit /
+    header[data-testid="stHeader"] {{
+        display: none;
+    }}
+    / El banner "escapa" del contenedor con márgenes negativos */
+    .banner-wrapper {{
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        width: 100vw;
+        max-height: 900px;
+        overflow: hidden;
+       
+    }}
+    .banner-wrapper img {{
+        width: 100%;
+        height: 900;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+    }}
     </style>
-    """, unsafe_allow_html=True)
+    <div class="banner-wrapper">
+        <img src="data:image/png;base64,{img_b64}" />
+    </div>
+""", unsafe_allow_html=True)
+
+import streamlit as st
+import base64
+
+def set_background(Version_nocturna_del):
+    with open(Version_nocturna_del, "rb") as f:
+        data = base64.b64encode(f.read()).decode()
+    
+    css = f"""
+    <style>
+    .stApp {{
+        background-image: url("data:image/png;base64,{data}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }}
+    </style>
+    """
+    st.markdown(css, unsafe_allow_html=True)
+
+set_background("Imagenes/Version_nocturna_del.webp")
 
 #Título debajo de la cabecera
-st.title("Análisis del grupazo 4")
+st.title("Iceberg Intelligence")
 
 # Texto a poner debajo del titulo
-with st.expander("👥 Integrantes del equipo"):
+with st.expander("👥 About Us"):
     st.markdown("""
-    **Chiara Contreras**  
-    **Jenireé Tovar**  
-    **Lucia Llaneza**  
-    **Michelle Olivares**  
-    **Sara Bailon**  
+    Iceberg Intelligence nació con una idea sencilla: si solo vemos la punta del iceberg, estamos perdiendo el 90% del valor.
+Por eso analizamos, visualizamos y contamos historias con datos para revelar lo que normalmente queda oculto bajo la superficie.
+Somos un equipo que combina análisis, diseño y tecnología para crear dashboards claros, modelos fiables y recomendaciones que realmente importan.
+No prometemos "insights que cambien el mundo" mientras nos tomamos nuestras dosis de cafeína y teína. Prometemos algo mucho más difícil de encontrar: información tratada con rigor que no te hará sentir que estás leyendo jeroglíficos. Convertimos la complejidad en decisiones tranquilas y, en la medida de lo posible, humanas (o al menos, de pingüino).    
+    Integrantes:    
+        - **Chiara Contreras**  
+        - **Jenireé Tovar**  
+        - **Lucia Llaneza**  
+        - **Michelle Olivares**  
+        - **Sara Bailon**  
     """)
 
 # Carga del dataset
 df = carga_datos()
 
 #Creacion de la barra lateral
-opcion = st.sidebar.selectbox(
-    "Selecciona qué quieres ver:",
+img_sidebar_b64 = imagen_a_base64("Imagenes/Pingu_fit.webp")
+
+st.markdown(f"""
+    <style>
+    [data-testid="stSidebar"] {{
+        background-image: url("data:image/png;base64,{img_sidebar_b64}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }}
+    </style>
+""", unsafe_allow_html=True)
+
+#--- Caja 1: Visualizaciones ---
+opcion_visual = st.sidebar.selectbox(
+    "📊 Gráficos y Análisis:",
     [
         "Nada",
+        "Heatmap de correlaciones",
         "Gráfico: Masa corporal por especie",
         "Gráfico: Distribución por especie (pie chart)",
         "Gráficos lmplot",
-        "Tabla filtrada",
-        "Heatmap de correlaciones"
+        
     ]
 )
 
-if opcion == "Gráfico: Masa corporal por especie":
+#--- Caja 2: Datos ---
+opcion_datos = st.sidebar.selectbox(
+    "📋 Datos y Tablas:",
+    ["Nada", "Tabla filtrada"]
+)
+
+#--- Lógica para mostrar los Gráficos ---
+if opcion_visual == "Gráfico: Masa corporal por especie":
     grafico_masa_por_especie(df)
 
-if opcion == "Gráfico: Distribución por especie (pie chart)":
+elif opcion_visual == "Gráfico: Distribución por especie (pie chart)":
     distribucion_especie(df)
 
-if opcion == "Gráficos lmplot":
+elif opcion_visual == "Gráficos lmplot":
     graficos_lmplot(df)
 
-if opcion == "Tabla filtrada":
-    apply_filters(df)
-
-if opcion == "Heatmap de correlaciones":
+elif opcion_visual == "Heatmap de correlaciones":
     heatmap_correlaciones(df)
 
+#--- Lógica para mostrar la Tabla ---
+if opcion_datos == "Tabla filtrada":
+    apply_filters(df)
+    apply_filters_especies(df)
 # Añadir metricas generales: 
 
 
@@ -127,5 +276,210 @@ folium.Marker(
 ).add_to(m)
 
 # Mostrar mapa en Streamlit
-st_folium(m, width=700, height=500)
+st_folium(m, width=True, height=500)
 
+
+import streamlit as st
+
+st.markdown("<h1 style='text-align: center;'>🐧⛔ Limitaciones y Sesgos</h1>", unsafe_allow_html=True)
+st.divider()
+
+#Primera fila: El problema principal
+st.markdown("""
+<div style="
+    background-color: #fdecea;        /* rojo muy claro */
+    border-left: 4px solid #d93025;   /* rojo Google-style */
+    padding: 12px 16px;
+    border-radius: 6px;
+    ">
+  <span style='color:#b71c1c; font-weight:bold; font-size:26px;'>
+    🛑 Limitación Crítica: Comportamiento
+  </span><br>
+  <span style='color:#5a0000; font-size:22px;'>
+    No existen datos suficientes para concluir diferencias en migración, reproducción o anidación.
+  </span>
+</div>
+""", unsafe_allow_html=True)
+
+#Segunda fila: Sesgos técnicos
+col1, col2 = st.columns(2)
+
+col1, col2 = st.columns(2)
+
+with col1:
+    with st.container(border=True):
+        st.markdown("""
+        <h4 style='font-size:26px; margin-bottom:6px;'>⚖️ Sesgos de Identificación</h4>
+        <p style='font-size:22px; line-height:1.4;'>
+        IDs Reutilizados: Imposible el seguimiento multianual.<br>
+        Errores Sistemáticos: Identificación errónea persistente en las muestras.
+        </p>
+        """, unsafe_allow_html=True)
+
+with col2:
+    with st.container(border=True):
+        st.markdown("""
+        <h4 style='font-size:26px; margin-bottom:6px;'>🧬 Barrera Técnica</h4>
+        <p style='font-size:22px; line-height:1.4;'>
+        Conocimiento Específico: Datos como las columnas Delta requieren perfiles en biología marina para evitar especulaciones.
+        </p>
+        """, unsafe_allow_html=True)
+
+#Tercera fila: Propuesta de mejora
+st.markdown("""
+<div style="
+    background-color: #e8f4fd;
+    border-left: 4px solid #1f77b4;
+    padding: 12px 16px;
+    border-radius: 6px;
+    ">
+ <span style='color:#0A4D8C; font-weight:bold; font-size:26px;'>
+    Propuesta para el Cliente
+  </span><br>
+  <span style='color:#333333; font-size:22px; line-height:1.4;'>
+    Implementar una nomenclatura alfanumérica optimizada para garantizar trazabilidad y eliminar sesgos de información.
+  </span>
+</div>
+""", unsafe_allow_html=True)
+
+
+import streamlit as st
+ 
+
+st.markdown("""
+<style>
+    .section-label {
+        font-size: 1.35rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        margin-bottom: 6px;
+    }
+    .section-content {
+        font-size: 1.35rem;
+        line-height: 1.55;
+        color: #374151;
+        margin: 0;
+    }
+    .badge-evidencia      { color: #1d4ed8; }
+    .badge-interpretacion { color: #7c3aed; }
+    .badge-implicacion    { color: #b45309; }
+    .badge-recomendacion  { color: #065f46; }
+
+    .pill-evidencia      { background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 0 8px 8px 0; padding: 12px 14px; }
+    .pill-interpretacion { background: #f5f3ff; border-left: 4px solid #8b5cf6; border-radius: 0 8px 8px 0; padding: 12px 14px; }
+    .pill-implicacion    { background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 0 8px 8px 0; padding: 12px 14px; }
+    .pill-recomendacion  { background: #ecfdf5; border-left: 4px solid #10b981; border-radius: 0 8px 8px 0; padding: 12px 14px; }
+
+    div[data-testid="column"] { padding: 4px 8px; }
+            
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# ── Datos ─────────────────────────────────────────────────────────────────────
+
+hallazgos = [
+    {
+        "titulo": "Primer hallazgo — Individual IDs",
+        "evidencia": "Observamos un patrón en los IDs individuales: aunque se pierdan los datos o aparezcan como nulos, en su gran mayoría hacen referencia a una pareja (macho/hembra).",
+        "interpretacion": "El estudio se enfoca en parejas de pingüinos.",
+        "implicacion": "Al tratarse de un dato muy relevante para el estudio, el cliente debe asegurar la calidad de este dato.",
+        "recomendacion": "Asignar un número en el individual_ID (1 o 2) dependiendo de si se trata de un macho (ej. 1) o una hembra (ej. 2) para mantener la trazabilidad.",
+    },
+    {
+        "titulo": "Segundo hallazgo — Desequilibrio por especies",
+        "evidencia": "Existe una gran diferencia en la cantidad de datos analizados por especie. Chinstrap aporta solo el 20% de las muestras, mientras que Adelie y Gentoo suponen casi el 40% cada una.",
+        "interpretacion": "El dataset no está equilibrado para hacer un análisis comparativo por especies.",
+        "implicacion": "Para el cliente, las comparaciones entre especies no aportarán valor real.",
+        "recomendacion": "Reconsiderar el muestreo de cada especie o especificar mejor si estos datos son relevantes para comparaciones futuras.",
+    },
+    {
+        "titulo": "Tercer hallazgo — Concentración por islas",
+        "evidencia": "La toma de muestras está concentrada en las islas Biscoe y Dream; la isla Torgersen supone únicamente el 13%.",
+        "interpretacion": "El dataset es escaso para representar una distribución real entre islas.",
+        "implicacion": "El análisis puede estar sesgado debido a esta distribución desigual.",
+        "recomendacion": "Mejorar la calidad del dato para que las comparativas sean más fieles. Valorar si al cliente le interesa estudiar la presencia/ausencia de pingüinos entre islas en época de anidación e incubación.",
+    },
+    {
+        "titulo": "Cuarto hallazgo — Similitud morfológica Adelie/Chinstrap",
+        "evidencia": "Las especies Adelie y Chinstrap comparten características similares (profundidad del pico y longitud de la aleta), lo que las hace difíciles de separar para interpretar perfiles biológicos.",
+        "interpretacion": "Al tener datos similares, las comparaciones entre estas dos especies no son relevantes.",
+        "implicacion": "Si el objetivo es obtener diferencias observables entre estas especies, será necesario aportar otros datos.",
+        "recomendacion": "Recoger datos más significativos que las diferencien, ampliar la toma de muestras y crear perfiles biológicos más completos para comparar la morfología de las especies.",
+    },
+    {
+        "titulo": "Quinto hallazgo — Escasez de datos temporales",
+        "evidencia": "Los datos temporales son muy limitados: solo cubren noviembre y principios de diciembre. No se dispone de información sobre la población anual de las islas.",
+        "interpretacion": "Probablemente se trate de la época de mayor anidación y reproducción, pero no es posible concluir si la población aumenta o disminuye a lo largo del año.",
+        "implicacion": "El cliente tendría datos más fieles del aumento o decrecimiento de la población si se ampliara el periodo de muestreo.",
+        "recomendacion": "Mantener un seguimiento anual o estacional para ver la evolución de la distribución poblacional, incluyendo crías, adultos en época de reproducción y pingüinos mayores.",
+    },
+]
+
+# ── UI ────────────────────────────────────────────────────────────────────────
+
+st.markdown("## 🎯 Conclusiones y recomendaciones")
+
+numeros = ["①", "②", "③", "④", "⑤"]
+
+with st.expander("📋 Hallazgos", expanded=False):
+    for i, h in enumerate(hallazgos):
+        with st.expander(f"{numeros[i]} {h['titulo']}", expanded=False):
+            col1, col2, col3, col4 = st.columns(4)
+
+            with col1:
+                st.markdown(
+                    f'<div class="pill-evidencia">'
+                    f'<p class="section-label badge-evidencia">🔍 Evidencia observada</p>'
+                    f'<p class="section-content">{h["evidencia"]}</p>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+            with col2:
+                st.markdown(
+                    f'<div class="pill-interpretacion">'
+                    f'<p class="section-label badge-interpretacion">🧠 Interpretación</p>'
+                    f'<p class="section-content">{h["interpretacion"]}</p>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+            with col3:
+                st.markdown(
+                    f'<div class="pill-implicacion">'
+                    f'<p class="section-label badge-implicacion">💼 Implicación para el cliente</p>'
+                    f'<p class="section-content">{h["implicacion"]}</p>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+            with col4:
+                st.markdown(
+                    f'<div class="pill-recomendacion">'
+                    f'<p class="section-label badge-recomendacion">✅ Recomendación concreta</p>'
+                    f'<p class="section-content">{h["recomendacion"]}</p>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+
+st.markdown("""
+<style>
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: rgba(255,255,255,0.85);
+    color: #333;
+    text-align: center;
+    padding: 8px 0;
+    font-size: 0.9rem;
+    border-top: 1px solid #ccc;
+}
+</style>
+
+<div class="footer">
+    Dashboard renderizado a -20°C. Compilado entre ventiscas y mucho café + té para mantener los insights calientes.
+            Informe realizado para Organizacion de Investigacion Biologica Polar por Iceberg Intelligence.
+</div>
+""", unsafe_allow_html=True)
